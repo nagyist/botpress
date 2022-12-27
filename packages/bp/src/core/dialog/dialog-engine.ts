@@ -33,6 +33,7 @@ export class DialogEngine {
   ) {}
 
   public async processEvent(sessionId: string, event: IO.IncomingEvent): Promise<IO.IncomingEvent> {
+    console.log('event_debug:' + event.threadId + ':' + event.id + ':start_processing')
     const botId = event.botId
     await this._loadFlows(botId)
 
@@ -138,16 +139,19 @@ export class DialogEngine {
               typeof onErrorFlowTo === 'string' && onErrorFlowTo.length ? onErrorFlowTo : 'error.flow.json'
 
             const incommingEvent = await this._transition(sessionId, event, errorFlow)
+            console.log('event_debug:' + event.threadId + ':' + event.id + ':finish_processing:incoming')
             return incommingEvent
           }
         }
       }
     } catch (err) {
       this._reportProcessingError(botId, err, event, instruction)
+      console.log('event_debug:' + event.threadId + ':' + event.id + ':finish_processing:error', err)
     } finally {
       await converseApiEvents.emitAsync(`action.end.${buildUserKey(event.botId, event.target)}`, event)
     }
 
+    console.log('event_debug:' + event.threadId + ':' + event.id + ':finish_processing:last')
     return event
   }
 
@@ -397,6 +401,7 @@ export class DialogEngine {
   }
 
   private initializeContext(event) {
+    console.log('event_debug:' + event.threadId + ':' + event.id + ':event_initialize_context')
     const defaultFlow = this._findFlow(event.botId, event.ndu ? 'misunderstood.flow.json' : 'main.flow.json')
     const startNode = this._findNode(event.botId, defaultFlow, defaultFlow.startNode)
     event.state.__stacktrace.push({ flow: defaultFlow.name, node: startNode.name })

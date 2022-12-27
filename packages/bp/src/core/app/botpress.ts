@@ -398,7 +398,9 @@ export class Botpress {
     this.qnaService.initialize()
 
     this.eventEngine.onBeforeIncomingMiddleware = async (event: sdk.IO.IncomingEvent) => {
+      console.log('event_debug:' + event.threadId + ':' + event.id + ':restore_state_init')
       await this.stateManager.restore(event)
+      console.log('event_debug:' + event.threadId + ':' + event.id + ':restore_state_finish')
       addStepToEvent(event, StepScopes.StateLoaded)
       await this.hookService.executeHook(new Hooks.BeforeIncomingMiddleware(this.api, event))
     }

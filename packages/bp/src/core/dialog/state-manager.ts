@@ -159,6 +159,7 @@ export class StateManager {
   }
 
   private _runTask = async () => {
+    console.log('event_debug: _runTask:start')
     if (this.currentPromise || !this.batch || !this.batch.length) {
       return
     }
@@ -169,11 +170,14 @@ export class StateManager {
     this.currentPromise = this.knex
       .transaction(async trx => {
         for (const { event, ignoreContext } of elements) {
+          console.log('event_debug:' + event.threadId + ':' + event.id + ':runTask:persist:start')
           await this._saveState(event, ignoreContext, trx)
+          console.log('event_debug:' + event.threadId + ':' + event.id + ':runTask:persist:end')
         }
       })
       .finally(() => {
         this.currentPromise = undefined
+        console.log('event_debug: _runTask:end')
       })
   }
 

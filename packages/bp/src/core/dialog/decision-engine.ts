@@ -81,13 +81,23 @@ export class DecisionEngine {
       // In case there are no unknown errors, remove skills/ flow from the stacktrace
       processedEvent.state.__stacktrace = processedEvent.state.__stacktrace.filter(x => !x.flow.startsWith('skills/'))
       await processEvent(processedEvent)
+      console.log('event_debug:' + event.threadId + ':' + event.id + ':88_persiststate_init')
+      console.log(
+        'event_debug:' + event.threadId + ':' + event.id + ':state -> ' + JSON.stringify(event.state, null, 2)
+      )
       await this.stateManager.persist(processedEvent, false)
+      console.log('event_debug:' + event.threadId + ':' + event.id + ':88_persiststate_end')
       return
     }
 
     if (event.hasFlag(WellKnownFlags.FORCE_PERSIST_STATE)) {
       await processEvent(event)
+      console.log('event_debug:' + event.threadId + ':' + event.id + ':99_persiststate_init')
+      console.log(
+        'event_debug:' + event.threadId + ':' + event.id + ':state -> ' + JSON.stringify(event.state, null, 2)
+      )
       await this.stateManager.persist(event, false)
+      console.log('event_debug:' + event.threadId + ':' + event.id + ':99_persiststate_end')
     }
 
     await processEvent(event)
@@ -153,7 +163,12 @@ export class DecisionEngine {
         processedEvent.state.__stacktrace = processedEvent.state.__stacktrace.filter(x => !x.flow.startsWith('skills/'))
         this.onAfterEventProcessed && (await this.onAfterEventProcessed(processedEvent))
 
+        console.log('event_debug:' + event.threadId + ':' + event.id + ':persiststate_init')
+        console.log(
+          'event_debug:' + event.threadId + ':' + event.id + ':state -> ' + JSON.stringify(event.state, null, 2)
+        )
         await this.stateManager.persist(processedEvent, false)
+        console.log('event_debug:' + event.threadId + ':' + event.id + ':persiststate_end')
         return
       } catch (err) {
         this.logger
@@ -166,7 +181,12 @@ export class DecisionEngine {
     }
 
     if (event.hasFlag(WellKnownFlags.FORCE_PERSIST_STATE)) {
+      console.log('event_debug:' + event.threadId + ':' + event.id + ':force_persiststate_init')
+      console.log(
+        'event_debug:' + event.threadId + ':' + event.id + ':state -> ' + JSON.stringify(event.state, null, 2)
+      )
       await this.stateManager.persist(event, false)
+      console.log('event_debug:' + event.threadId + ':' + event.id + ':force_persiststate_end')
     }
   }
 
@@ -175,7 +195,12 @@ export class DecisionEngine {
     try {
       await this.dialogEngine.jumpTo(sessionId, event, 'error', 'entry')
       const processedEvent = await this.dialogEngine.processEvent(sessionId, event)
+      console.log('event_debug:' + event.threadId + ':' + event.id + ':error_persiststate_init')
+      console.log(
+        'event_debug:' + event.threadId + ':' + event.id + ':state -> ' + JSON.stringify(event.state, null, 2)
+      )
       await this.stateManager.persist(processedEvent, false)
+      console.log('event_debug:' + event.threadId + ':' + event.id + ':error_persiststate_end')
     } catch (err) {
       this.logger
         .forBot(event.botId)
@@ -232,7 +257,10 @@ export class DecisionEngine {
 
     event.state.session.lastMessages.push(message)
 
+    console.log('event_debug:' + event.threadId + ':' + event.id + ':sendcontent_persiststate_init')
     await this.stateManager.persist(event, true)
+    console.log('event_debug:' + event.threadId + ':' + event.id + ':state -> ' + JSON.stringify(event.state, null, 2))
+    console.log('event_debug:' + event.threadId + ':' + event.id + ':sendcontent_persiststate_end')
   }
 
   private async _sendSuggestion(
